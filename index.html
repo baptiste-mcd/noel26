@@ -35,6 +35,8 @@
 
   .bubble { position: absolute; left: 0; top: 0; pointer-events: none; padding-bottom: 14px; z-index: 1; }
   .bubble.open { z-index: 10; }
+  .bubble.offscreen { visibility: hidden; }
+  .bubble.offscreen * { pointer-events: none !important; }
   .bubble-dot { position: absolute; left: 50%; bottom: -6px; width: 34px; height: 34px; margin-left: -17px; box-sizing: border-box; border-radius: 50%; background: var(--red); border: 3px solid #fff; box-shadow: 0 0 14px var(--red), 0 3px 0 #0005; display: grid; place-items: center; transition: opacity .2s, transform .2s; }
   .bubble-dot svg { width: 17px; height: 17px; display: block; pointer-events: none; }
   .bubble-dot { pointer-events: auto; cursor: pointer; }
@@ -686,6 +688,8 @@ if (!ok) {
     anchors.forEach((an, i) => {
       v3.set(an.obj.position.x, an.y, an.obj.position.z).project(cam);
       const be = bubbleEls[i]; if (!be) return;
+      const off = v3.x < -1.04 || v3.x > 1.04 || v3.y < -1.04 || v3.y > 1.5;
+      be.classList.toggle("offscreen", off); if (off) return;
       const half = (be.offsetWidth || 0) / 2 + 6;
       const px = Math.min(vw - half, Math.max(half, (v3.x + 1) / 2 * vw));
       const py = Math.max((be.offsetHeight || 0) + 6, (1 - v3.y) / 2 * vh);
