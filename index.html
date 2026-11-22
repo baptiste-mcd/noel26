@@ -37,6 +37,10 @@
   .bubble { position: absolute; left: 0; top: 0; pointer-events: none; padding-bottom: 14px; z-index: 1; }
   .bubble.open { z-index: 10; }
   .bubble.offscreen { visibility: hidden; }
+  .reserved { display: flex; width: fit-content; align-items: center; gap: 5px; margin-top: 6px; padding: 4px 10px 4px 7px; border-radius: 999px; background: #2a9d61; color: #fff; font-family: var(--f-display); font-weight: 600; font-size: 13px; white-space: nowrap; box-shadow: 0 0 0 1px rgba(255,255,255,.18) inset; }
+  .reserved svg { width: 14px; height: 14px; flex: none; }
+  .reserved + .pill { display: flex; width: fit-content; }
+  @media (max-width: 640px) { .bubble .reserved { font-size: 10.5px; padding: 3px 8px 3px 5px; margin-top: 4px; } .bubble .reserved svg { width: 11px; height: 11px; } }
   .bubble.offscreen * { pointer-events: none !important; }
   .bubble-dot { position: absolute; left: 50%; bottom: -6px; width: 34px; height: 34px; margin-left: -17px; box-sizing: border-box; border-radius: 50%; background: var(--red); border: 3px solid #fff; box-shadow: 0 0 14px var(--red), 0 3px 0 #0005; display: grid; place-items: center; transition: opacity .2s, transform .2s; }
   .bubble-dot svg { width: 17px; height: 17px; display: block; pointer-events: none; }
@@ -111,7 +115,7 @@
 const WISHES = [
   {marque: "Aesop", nom: "Tacit", detail: "Eau de Parfum", cta: "Participation", img: "img/aesop-tacit.png", url: "https://www.aesop.fr/parfum/tacit-truths-eau-de-parfum/FR41.html"},
   {marque: "Maison", nom: "Purificateur d'air", detail: "Ex : Bosch Air 4000", img: "img/purificateur-air.png", cta: "Participation", url: "https://www.amazon.fr/Bosch-Air-4000-Purificateur-dAir/dp/B0B5D7H7VP?th=1"},
-  {marque: "KNAON", nom: "Imprimante thermique", detail: "Blanche", img: "img/imprimante-knaon.png", wide: true, url: "https://www.amazon.fr/dp/B0DR86V4ZV?th=1"},
+  {marque: "KNAON", nom: "Imprimante thermique", detail: "Blanche", img: "img/imprimante-knaon.png", wide: true, url: "https://www.amazon.fr/dp/B0DR86V4ZV?th=1", reserve: "Réservé par Tata Clo"},
   {marque: "Vêtements", nom: "Carte cadeau", detail: "Pour des vêtements", cta: "Uniqlo, etc.", img: "img/carte-vetements.png", wide: true}
 ];
 const touchUI = () => window.matchMedia("(hover: none), (pointer: coarse)").matches;
@@ -119,13 +123,14 @@ const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 let selRing = null;
 
 const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+const resTag = (w) => { const s = el("div", "reserved"); s.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'; s.append(w.reserve); return s; };
 const link = (w, text) => { if (!w.url) return el("span", "pill", text); const a = el("a", "pill", text); a.href = w.url; a.target = "_blank"; a.rel = "noopener"; return a; };
 function bubble(w, i) {
   const b = el("div", "bubble"); b.dataset.i = i;
   const inner = el("div", "bubble-in");
   const im = el("img"); im.src = w.img; im.alt = ""; if (w.wide) im.className = "wide";
   const txt = el("div");
-  txt.append(el("div", "who", w.marque), el("div", "nm", w.detail ? w.nom + " · " + w.detail : w.nom), link(w, w.cta || "Voir le produit ↗"));
+  txt.append(el("div", "who", w.marque), el("div", "nm", w.detail ? w.nom + " · " + w.detail : w.nom)); if (w.reserve) txt.append(resTag(w)); txt.append(link(w, w.cta || "Voir le produit ↗"));
   inner.append(im, txt);
   const fl = el("div", "bubble-float"); fl.append(inner);
   const dot = el("span", "bubble-dot"); dot.setAttribute("aria-hidden", "true");
@@ -138,7 +143,7 @@ const cards = WISHES.map((w) => {
   const li = el("li", "wish");
   const im = el("img"); im.src = w.img; im.alt = w.marque + " " + w.nom; if (w.wide) im.className = "wide";
   const txt = el("div");
-  txt.append(el("div", "who", w.marque), el("h3", null, w.nom)); if (w.detail) txt.append(el("p", null, w.detail)); txt.append(link(w, w.cta || "Voir le produit ↗"));
+  txt.append(el("div", "who", w.marque), el("h3", null, w.nom)); if (w.detail) txt.append(el("p", null, w.detail)); if (w.reserve) txt.append(resTag(w)); txt.append(link(w, w.cta || "Voir le produit ↗"));
   li.append(im, txt); grid.append(li);
   return li;
 });
